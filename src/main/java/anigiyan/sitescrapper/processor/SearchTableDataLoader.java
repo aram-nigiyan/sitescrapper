@@ -1,6 +1,7 @@
 package anigiyan.sitescrapper.processor;
 
 import anigiyan.sitescrapper.Configs;
+import anigiyan.sitescrapper.ResourceLoader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -37,13 +38,25 @@ public class SearchTableDataLoader {
     @Autowired
     private WebDriverProvider webDriverProvider;
 
+    @Autowired
+    private ResourceLoader resourceLoader;
+
     private List<CompanySearchPageData> companies = Collections.synchronizedList(new ArrayList<>(64));
 
-    public void extract(int workerCount) {
+    /**
+     * Extract company data
+     *
+     * @param workerCount number of threads processing page ranges paralelly
+     * @param maxPages    -1 means all (used for tests)
+     * @see CompanySearchPageData
+     */
+    public void extract(int workerCount, int maxPages) {
         logger.info("Data extraction is started");
+        companies.clear();
+
         long start = System.currentTimeMillis();
 
-        int totalPageNumber = resolveTotalPageNumber();
+        int totalPageNumber = maxPages == -1 ? resolveTotalPageNumber() : maxPages;
         collectInParallel(workerCount, totalPageNumber);
 
         logger.info("Data extraction completed in {}ms", System.currentTimeMillis() - start);
@@ -118,7 +131,7 @@ public class SearchTableDataLoader {
         return companies;
     }
 
-    class Worker implements Callable<List<CompanySearchPageData>> {
+    private class Worker implements Callable<List<CompanySearchPageData>> {
 
         int startPage;
         int endPage;
@@ -169,7 +182,7 @@ public class SearchTableDataLoader {
         private List<CompanySearchPageData> extractCompanies() {
 
             Stream<WebElement> rows = driver.findElements(By.cssSelector(".content .cursorPointer")).stream();
-            return rows.map(it -> {
+            List<CompanySearchPageData> companies = rows.map(it -> {
 
                         String companyName = it.findElement(By.tagName("span")).getText();
                         String imageSrc = it.findElement(By.tagName("img")).getAttribute("src");
@@ -179,7 +192,15 @@ public class SearchTableDataLoader {
                     }
 
             ).collect(Collectors.toList());
+
+            long start = System.currentTimeMillis();
+
+            companies.stream().parallel().forEach(company -> {
+                company.setImage(resourceLoader.load(company.getImageUrl()));
+            });
+            logger.debug("Loading {} images took {}ms", companies.size(), System.currentTimeMillis() - start);
+
+            return companies;
         }
     }
-
 }

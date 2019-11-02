@@ -5,20 +5,43 @@ package anigiyan.sitescrapper.processor;
  * Date: 01/11/2019
  */
 
-class CompanySearchPageData {
+/**
+ * Intermediate class to collect company data before persistence phase
+ *
+ * @see anigiyan.sitescrapper.model.Company
+ */
+public class CompanySearchPageData {
 
     private String name;
     private String imageUrl;
+    private byte[] image;
 
     public CompanySearchPageData(String name, String imageUrl) {
         this.name = name;
         this.imageUrl = imageUrl;
     }
 
-    @Override
-    public String toString() {
-        return "Company{" +
-                "name='" + name + '\'' +
-                '}';
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 }
