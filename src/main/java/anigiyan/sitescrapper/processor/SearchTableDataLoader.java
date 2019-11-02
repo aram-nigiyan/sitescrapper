@@ -97,10 +97,10 @@ public class SearchTableDataLoader {
      */
     private static void waitListLoad(WebDriver driver) {
         new WebDriverWait(driver, 20).until(
-//                ExpectedConditions.and(
-                ExpectedConditions.numberOfElementsToBe(By.className("mwf-Spinner-Glass"), 0)
-//                        ExpectedConditions.presenceOfElementLocated(By.className("mwf-grid-footer"))
-//                )
+                ExpectedConditions.and(
+                        ExpectedConditions.numberOfElementsToBe(By.className("mwf-Spinner-Glass"), 0),
+                        ExpectedConditions.presenceOfElementLocated(By.className("mwf-grid-footer"))
+                )
         );
     }
 
