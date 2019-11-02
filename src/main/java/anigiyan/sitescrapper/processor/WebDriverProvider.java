@@ -1,10 +1,8 @@
 package anigiyan.sitescrapper.processor;
 
-import anigiyan.sitescrapper.Configs;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,8 +12,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class WebDriverProvider {
-    @Autowired
-    Configs configs;
 
     WebDriver newDriver() {
         ChromeOptions options = new ChromeOptions();
