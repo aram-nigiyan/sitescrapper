@@ -19,6 +19,9 @@ public class Configs {
     @Value("${sitescrapper.companies.list.url}")
     private String cmpListUrl;
 
+    @Value("${sitescrapper.companies.id.by.name.url}")
+    private String cmpIdRequestUrl;
+
     public String getWebDriverUrl() {
         return webdriverUrl;
     }
@@ -33,6 +36,14 @@ public class Configs {
 
     public void setCmpListUrl(String cmpListUrl) {
         this.cmpListUrl = cmpListUrl;
+    }
+
+    public String getCmpIdRequestUrl() {
+        return cmpIdRequestUrl;
+    }
+
+    public void setCmpIdRequestUrl(String cmpIdRequestUrl) {
+        this.cmpIdRequestUrl = cmpIdRequestUrl;
     }
 
     @PostConstruct

@@ -41,14 +41,14 @@ public class SearchTableDataLoader {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    private List<CompanySearchPageData> companies = Collections.synchronizedList(new ArrayList<>(64));
+    private List<CompanyData> companies = Collections.synchronizedList(new ArrayList<>(64));
 
     /**
      * Extract company data
      *
      * @param workerCount number of threads processing page ranges paralelly
      * @param maxPages    -1 means all (used for tests)
-     * @see CompanySearchPageData
+     * @see CompanyData
      */
     public void extract(int workerCount, int maxPages) {
         logger.info("Data extraction is started");
@@ -66,14 +66,14 @@ public class SearchTableDataLoader {
         int range = totalPageNumber / workerCount + (totalPageNumber % workerCount == 0 ? 0 : 1);
 
         ExecutorService executor = Executors.newFixedThreadPool(workerCount);
-        Collection<Future<List<CompanySearchPageData>>> futures = new ArrayList<>();
+        Collection<Future<List<CompanyData>>> futures = new ArrayList<>();
 
         for (int page = 1; page <= totalPageNumber; page += range + 1) {
-            Future<List<CompanySearchPageData>> future = executor.submit(new Worker(page, page + range > totalPageNumber ? totalPageNumber : page + range));
+            Future<List<CompanyData>> future = executor.submit(new Worker(page, page + range > totalPageNumber ? totalPageNumber : page + range));
             futures.add(future);
         }
 
-        for (Future<List<CompanySearchPageData>> future : futures) {
+        for (Future<List<CompanyData>> future : futures) {
             try {
                 companies.addAll(future.get());
             } catch (InterruptedException | ExecutionException e) {
@@ -127,11 +127,11 @@ public class SearchTableDataLoader {
         return Integer.parseInt(split[1]);
     }
 
-    public List<CompanySearchPageData> getCompanies() {
+    public List<CompanyData> getCompanies() {
         return companies;
     }
 
-    private class Worker implements Callable<List<CompanySearchPageData>> {
+    private class Worker implements Callable<List<CompanyData>> {
 
         int startPage;
         int endPage;
@@ -144,7 +144,7 @@ public class SearchTableDataLoader {
         }
 
         @Override
-        public List<CompanySearchPageData> call() {
+        public List<CompanyData> call() {
             logger.info("Processing pages: [{}, {}]", startPage, endPage);
 
             try {
@@ -154,7 +154,7 @@ public class SearchTableDataLoader {
                 changePage(startPage);
                 waitListLoad(driver);
                 logger.debug("Navigation on {} page took {}ms", startPage, System.currentTimeMillis() - start);
-                List<CompanySearchPageData> result = new ArrayList<>();
+                List<CompanyData> result = new ArrayList<>();
 
                 for (int i = startPage; i <= endPage; i++) {
 
@@ -179,16 +179,16 @@ public class SearchTableDataLoader {
             pageInputElement.sendKeys(Keys.RETURN);
         }
 
-        private List<CompanySearchPageData> extractCompanies() {
+        private List<CompanyData> extractCompanies() {
 
             Stream<WebElement> rows = driver.findElements(By.cssSelector(".content .cursorPointer")).stream();
-            List<CompanySearchPageData> companies = rows.map(it -> {
+            List<CompanyData> companies = rows.map(it -> {
 
                         String companyName = it.findElement(By.tagName("span")).getText();
                         String imageSrc = it.findElement(By.tagName("img")).getAttribute("src");
                         logger.trace("Parsed company:\nname={}\ninmagesrc={}", companyName, imageSrc);
 
-                        return new CompanySearchPageData(companyName, imageSrc);
+                return new CompanyData(companyName, imageSrc);
                     }
 
             ).collect(Collectors.toList());

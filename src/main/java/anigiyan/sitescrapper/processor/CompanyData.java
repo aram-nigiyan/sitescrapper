@@ -10,13 +10,13 @@ package anigiyan.sitescrapper.processor;
  *
  * @see anigiyan.sitescrapper.model.Company
  */
-public class CompanySearchPageData {
+public class CompanyData {
 
     private String name;
     private String imageUrl;
     private byte[] image;
 
-    public CompanySearchPageData(String name, String imageUrl) {
+    public CompanyData(String name, String imageUrl) {
         this.name = name;
         this.imageUrl = imageUrl;
     }

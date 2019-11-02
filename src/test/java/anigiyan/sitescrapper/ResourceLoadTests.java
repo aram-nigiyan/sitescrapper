@@ -1,6 +1,7 @@
 package anigiyan.sitescrapper;
 
-import anigiyan.sitescrapper.processor.CompanySearchPageData;
+import anigiyan.sitescrapper.processor.AddressLoader;
+import anigiyan.sitescrapper.processor.CompanyData;
 import anigiyan.sitescrapper.processor.SearchTableDataLoader;
 import anigiyan.sitescrapper.processor.WebDriverProvider;
 import org.junit.Assert;
@@ -18,18 +19,21 @@ import java.util.List;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {SearchTableDataLoader.class, Configs.class, WebDriverProvider.class, Runner.class, ResourceLoader.class})
+@SpringBootTest(classes = {SearchTableDataLoader.class, Configs.class, WebDriverProvider.class, Runner.class, ResourceLoader.class, AddressLoader.class})
 public class ResourceLoadTests {
 
     @Autowired
     private SearchTableDataLoader searchTableDataLoader;
 
+    @Autowired
+    private AddressLoader addressLoader;
+
     @Test
     public void mainResourceLoadTest() {
         SearchTableDataLoader searchTableDataLoader = this.searchTableDataLoader;
-        searchTableDataLoader.extract(1, 1);
+        searchTableDataLoader.extract(1, 3);
 
-        List<CompanySearchPageData> companies = searchTableDataLoader.getCompanies();
+        List<CompanyData> companies = searchTableDataLoader.getCompanies();
         Assert.assertFalse(companies.isEmpty());
         Assert.assertNotNull(companies.get(0).getImage());
     }
@@ -41,5 +45,10 @@ public class ResourceLoadTests {
 
         Assert.assertEquals("Unexpected count of collected companies, check real data for actual total or bug in code",
                 2489, searchTableDataLoader.getCompanies().size());
+    }
+
+    @Test
+    public void addressLoaderTest() {
+        Assert.assertNotNull(addressLoader.load("İSKENDERUN DEMİR VE ÇELİK A.Ş."));
     }
 }
