@@ -5,6 +5,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+
 /**
  * Developer: nigiyan
  * Date: 02/11/2019
@@ -16,6 +18,15 @@ public class WebDriverProvider {
     WebDriver newDriver() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
+
+        // looks +10% performance if no images rendered
+        HashMap<String, Object> images = new HashMap<String, Object>();
+        images.put("images", 2);
+        HashMap<String, Object> prefs = new HashMap<String, Object>();
+        prefs.put("profile.default_content_setting_values", images);
+
+        options.setExperimentalOption("prefs", prefs);
+
         return new ChromeDriver(options);
     }
 //
