@@ -1,6 +1,7 @@
 package anigiyan.sitescrapper.processor;
 
 import anigiyan.sitescrapper.Configs;
+import anigiyan.sitescrapper.ExecutorsPool;
 import anigiyan.sitescrapper.ResourceLoader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -18,7 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Developer: nigiyan
@@ -39,35 +42,36 @@ public class SearchTableDataLoader {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    private ExecutorsPool executorsPool;
+
     private List<CompanyData> companies = Collections.synchronizedList(new ArrayList<>(64));
 
-    /**
-     * Extract company data
-     *
-     * @param workerCount number of threads processing page ranges paralelly
-     * @param maxPages    -1 means all (used for tests)
-     * @see CompanyData
-     */
-    public void extract(int workerCount, int maxPages) {
+    public void extractAll() {
+        extract(-1);
+    }
+
+    public void extract(int maxPages) {
         logger.info("Data extraction is started");
         companies.clear();
 
         long start = System.currentTimeMillis();
 
         int totalPageNumber = maxPages == -1 ? resolveTotalPageNumber() : maxPages;
-        collectInParallel(workerCount, totalPageNumber);
+        collectInParallel(totalPageNumber);
 
         logger.info("Data extraction completed in {}ms", System.currentTimeMillis() - start);
     }
 
-    private void collectInParallel(int workerCount, int totalPageNumber) {
+    private void collectInParallel(int totalPageNumber) {
+        int workerCount = configs.getWorkerCount();
+
         int range = totalPageNumber / workerCount + (totalPageNumber % workerCount == 0 ? 0 : 1);
 
-        ExecutorService executor = Executors.newFixedThreadPool(workerCount);
         Collection<Future<List<CompanyData>>> futures = new ArrayList<>();
 
         for (int page = 1; page <= totalPageNumber; page += range + 1) {
-            Future<List<CompanyData>> future = executor.submit(new Worker(page, page + range > totalPageNumber ? totalPageNumber : page + range));
+            Future<List<CompanyData>> future = executorsPool.getExecutorService().submit(new Worker(page, page + range > totalPageNumber ? totalPageNumber : page + range));
             futures.add(future);
         }
 
@@ -79,7 +83,6 @@ public class SearchTableDataLoader {
             }
         }
         logger.info("Number of companies collected: {}", companies.size());
-        executor.shutdown();
     }
 
 
@@ -201,7 +204,7 @@ public class SearchTableDataLoader {
             companies.stream().filter(CompanyData::hasImage).parallel().forEach(company -> {
                 company.setImage(resourceLoader.load(company.getImageUrl()));
             });
-            logger.debug("Loading {} images took {}ms", companies.size(), System.currentTimeMillis() - start);
+            logger.debug("Loading images for companies {} (actual: {}) took {}ms", companies.size(), companies.stream().filter(CompanyData::hasImage).count(), System.currentTimeMillis() - start);
         }
 
         private void changePage(int page) {

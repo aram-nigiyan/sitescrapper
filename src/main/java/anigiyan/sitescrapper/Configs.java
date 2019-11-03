@@ -22,6 +22,9 @@ public class Configs {
     @Value("${sitescrapper.companies.id.by.name.url}")
     private String cmpIdRequestUrl;
 
+    @Value("${sitescrapper.worker.count}")
+    private int workerCount;
+
     public String getWebDriverUrl() {
         return webdriverUrl;
     }
@@ -44,6 +47,14 @@ public class Configs {
 
     public void setCmpIdRequestUrl(String cmpIdRequestUrl) {
         this.cmpIdRequestUrl = cmpIdRequestUrl;
+    }
+
+    public int getWorkerCount() {
+        return workerCount;
+    }
+
+    public void setWorkerCount(int workerCount) {
+        this.workerCount = workerCount;
     }
 
     @PostConstruct

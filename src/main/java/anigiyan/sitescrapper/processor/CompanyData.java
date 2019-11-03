@@ -15,6 +15,7 @@ public class CompanyData {
     private String name;
     private String imageUrl;
     private byte[] image;
+    private Long remoteId;
 
     public CompanyData(String name, String imageUrl) {
         this.name = name;
@@ -47,5 +48,13 @@ public class CompanyData {
 
     public boolean hasImage() {
         return imageUrl != null && !imageUrl.contains("nologo_Small");
+    }
+
+    public Long getRemoteId() {
+        return remoteId;
+    }
+
+    public void setRemoteId(Long remoteId) {
+        this.remoteId = remoteId;
     }
 }
