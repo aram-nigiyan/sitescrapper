@@ -44,4 +44,8 @@ public class CompanyData {
     public void setImage(byte[] image) {
         this.image = image;
     }
+
+    public boolean hasImage() {
+        return imageUrl != null && !imageUrl.contains("nologo_Small");
+    }
 }

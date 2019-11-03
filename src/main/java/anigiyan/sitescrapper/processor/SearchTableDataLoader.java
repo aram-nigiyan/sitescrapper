@@ -198,7 +198,7 @@ public class SearchTableDataLoader {
 
         private void downloadImages(Collection<CompanyData> companies) {
             long start = System.currentTimeMillis();
-            companies.stream().filter(c -> !c.getImageUrl().contains("nologo_Small")).parallel().forEach(company -> {
+            companies.stream().filter(CompanyData::hasImage).parallel().forEach(company -> {
                 company.setImage(resourceLoader.load(company.getImageUrl()));
             });
             logger.debug("Loading {} images took {}ms", companies.size(), System.currentTimeMillis() - start);

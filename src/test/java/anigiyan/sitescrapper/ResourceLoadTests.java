@@ -47,12 +47,13 @@ public class ResourceLoadTests {
         SearchTableDataLoader searchTableDataLoader = this.searchTableDataLoader;
         searchTableDataLoader.extract(16, -1);
 
+        List<CompanyData> companies = searchTableDataLoader.getCompanies();
         Assert.assertEquals("Unexpected count of collected companies, check real data for actual total or bug in code",
-                2489, searchTableDataLoader.getCompanies().size());
+                2489, companies.size());
 
-        long noImageCount = searchTableDataLoader.getCompanies().stream().filter(c -> c.getImage() == null).count();
-        logger.info("Companies without image: {}", noImageCount);
-        Assert.assertTrue(noImageCount > 0);
+        long hasImageCount = companies.stream().filter(CompanyData::hasImage).count();
+        logger.info("Companies with image: {}, without: {}", hasImageCount, companies.size() - hasImageCount);
+        Assert.assertTrue(hasImageCount > 0);
     }
 
     @Test

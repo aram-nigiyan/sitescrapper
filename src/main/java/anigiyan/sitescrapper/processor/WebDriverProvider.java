@@ -19,7 +19,7 @@ public class WebDriverProvider {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
 
-        // looks +10% performance if no images rendered
+        // +10% performance if no images rendered thanks to skip requests for "img src"
         HashMap<String, Object> images = new HashMap<String, Object>();
         images.put("images", 2);
         HashMap<String, Object> prefs = new HashMap<String, Object>();
