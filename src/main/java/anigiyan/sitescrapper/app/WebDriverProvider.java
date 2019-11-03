@@ -1,4 +1,4 @@
-package anigiyan.sitescrapper.processor;
+package anigiyan.sitescrapper.app;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -12,10 +12,13 @@ import java.util.HashMap;
  * Date: 02/11/2019
  */
 
+/**
+ * Abstraction to provide chrome/firefox drivers based on config. todo: complete if necessary
+ */
 @Component
 public class WebDriverProvider {
 
-    public WebDriver newDriver() {
+    WebDriver newDriver() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
 

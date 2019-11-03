@@ -1,7 +1,8 @@
 package anigiyan.sitescrapper.processor;
 
-import anigiyan.sitescrapper.Configs;
-import anigiyan.sitescrapper.ExecutorsPool;
+import anigiyan.sitescrapper.app.Configs;
+import anigiyan.sitescrapper.app.ExecutorsPool;
+import anigiyan.sitescrapper.app.WebDriverPool;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -32,13 +33,13 @@ public class AddressesLoader {
     private ExecutorsPool executorsPool;
 
     @Autowired
-    private WebDriverProvider webDriverProvider;
+    private WebDriverPool webDriverPool;
 
     public Future<String> load(Long id) {
 
         logger.info("Starting details load for company with id", id);
 
-        return executorsPool.getExecutorService().submit(new Worker(id, webDriverProvider.newDriver() /*todo: implement pool*/));
+        return executorsPool.getExecutorService().submit(new Worker(id, webDriverPool.borrowObject()));
     }
 
     private class Worker implements Callable<String> {
@@ -58,13 +59,12 @@ public class AddressesLoader {
             webDriver.findElement(By.cssSelector("div.mwf-AccordionPanel-Main > div:nth-child(1) > div.mwf-AccordionItem-ListTitle")).click();
             String text = webDriver.findElement(By.cssSelector(".mwf-AccordionItem-Content tr:nth-of-type(6) td:nth-of-type(2) div")).getText();
 
-            webDriver.quit();
+            webDriverPool.returnObject(webDriver);
 
             return StringUtils.trim(text);
         }
 
         private void waitDetailsLoad() {
-
 
             new WebDriverWait(webDriver, 20).until(
                     ExpectedConditions.and(

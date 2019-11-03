@@ -1,8 +1,9 @@
 package anigiyan.sitescrapper.processor;
 
-import anigiyan.sitescrapper.Configs;
-import anigiyan.sitescrapper.ExecutorsPool;
-import anigiyan.sitescrapper.ResourceLoader;
+import anigiyan.sitescrapper.app.Configs;
+import anigiyan.sitescrapper.app.ExecutorsPool;
+import anigiyan.sitescrapper.app.ResourceLoader;
+import anigiyan.sitescrapper.app.WebDriverPool;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -37,7 +38,7 @@ public class SearchTableDataLoader {
     private Configs configs;
 
     @Autowired
-    private WebDriverProvider webDriverProvider;
+    private WebDriverPool webDriverPool;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -87,7 +88,7 @@ public class SearchTableDataLoader {
 
 
     private int resolveTotalPageNumber() {
-        WebDriver driver = webDriverProvider.newDriver();
+        WebDriver driver = webDriverPool.borrowObject();
         try {
             driver.get(configs.getCmpListUrl());
             waitListLoad(driver);
@@ -98,7 +99,7 @@ public class SearchTableDataLoader {
             return totalPages;
 
         } finally {
-            driver.quit();
+            webDriverPool.returnObject(driver);
         }
     }
 
@@ -141,7 +142,7 @@ public class SearchTableDataLoader {
         Worker(int startPage, int endPage) {
             this.startPage = startPage;
             this.endPage = endPage;
-            driver = webDriverProvider.newDriver();
+            driver = webDriverPool.borrowObject();
         }
 
         @Override
@@ -169,7 +170,7 @@ public class SearchTableDataLoader {
                 }
                 return result;
             } finally {
-                driver.quit();
+                webDriverPool.returnObject(driver);
             }
         }
 

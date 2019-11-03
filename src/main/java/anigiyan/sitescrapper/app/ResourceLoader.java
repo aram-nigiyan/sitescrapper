@@ -1,4 +1,4 @@
-package anigiyan.sitescrapper;
+package anigiyan.sitescrapper.app;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;

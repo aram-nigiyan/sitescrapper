@@ -1,8 +1,8 @@
 package anigiyan.sitescrapper.processor;
 
-import anigiyan.sitescrapper.Configs;
-import anigiyan.sitescrapper.ExecutorsPool;
-import anigiyan.sitescrapper.ResourceLoader;
+import anigiyan.sitescrapper.app.Configs;
+import anigiyan.sitescrapper.app.ExecutorsPool;
+import anigiyan.sitescrapper.app.ResourceLoader;
 import com.jayway.jsonpath.JsonPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package anigiyan.sitescrapper;
+package anigiyan.sitescrapper.app;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

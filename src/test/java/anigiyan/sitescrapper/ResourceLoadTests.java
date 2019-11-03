@@ -1,6 +1,13 @@
 package anigiyan.sitescrapper;
 
-import anigiyan.sitescrapper.processor.*;
+import anigiyan.sitescrapper.app.Configs;
+import anigiyan.sitescrapper.app.ExecutorsPool;
+import anigiyan.sitescrapper.app.ResourceLoader;
+import anigiyan.sitescrapper.app.Runner;
+import anigiyan.sitescrapper.processor.AddressesLoader;
+import anigiyan.sitescrapper.processor.CompanyData;
+import anigiyan.sitescrapper.processor.RemoteIdLoader;
+import anigiyan.sitescrapper.processor.SearchTableDataLoader;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +20,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Developer: nigiyan
@@ -21,7 +27,7 @@ import java.util.stream.IntStream;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {SearchTableDataLoader.class, Configs.class, WebDriverProvider.class, Runner.class, ResourceLoader.class, RemoteIdLoader.class, ExecutorsPool.class, AddressesLoader.class})
+@SpringBootTest(classes = {SearchTableDataLoader.class, Configs.class, Runner.class, ResourceLoader.class, RemoteIdLoader.class, ExecutorsPool.class, AddressesLoader.class})
 public class ResourceLoadTests {
 
     private static final Logger logger = LoggerFactory.getLogger(ResourceLoadTests.class);
@@ -33,17 +39,7 @@ public class ResourceLoadTests {
     private RemoteIdLoader remoteIdLoader;
 
     @Autowired
-    private WebDriverProvider webDriverProvider;
-
-    @Autowired
     private AddressesLoader addressesLoader;
-
-    @Test
-    public void driverAccessibilityAndInitCostTest() {
-        long start = System.currentTimeMillis();
-        IntStream.range(0, 5).forEach(it -> webDriverProvider.newDriver().quit());
-        logger.info("Creation of 5 drivers took {}ms", System.currentTimeMillis() - start);
-    }
 
     @Test
     public void mainResourceLoadTest() {
@@ -82,6 +78,14 @@ public class ResourceLoadTests {
 
     @Test
     public void addressLoadTest() throws ExecutionException, InterruptedException {
+        long id = 10958L;
+        String text = addressesLoader.load(id).get();
+        logger.info("Address for company with id {} resolved to {}", id, text);
+        Assert.assertNotNull(text);
+    }
+
+    @Test
+    public void WebDriverPoolTest() throws ExecutionException, InterruptedException {
         long id = 10958L;
         String text = addressesLoader.load(id).get();
         logger.info("Address for company with id {} resolved to {}", id, text);
