@@ -7,6 +7,8 @@ import anigiyan.sitescrapper.processor.WebDriverProvider;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -21,6 +23,8 @@ import java.util.List;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {SearchTableDataLoader.class, Configs.class, WebDriverProvider.class, Runner.class, ResourceLoader.class, AddressLoader.class})
 public class ResourceLoadTests {
+
+    private static final Logger logger = LoggerFactory.getLogger(ResourceLoadTests.class);
 
     @Autowired
     private SearchTableDataLoader searchTableDataLoader;
@@ -45,6 +49,10 @@ public class ResourceLoadTests {
 
         Assert.assertEquals("Unexpected count of collected companies, check real data for actual total or bug in code",
                 2489, searchTableDataLoader.getCompanies().size());
+
+        long noImageCount = searchTableDataLoader.getCompanies().stream().filter(c -> c.getImage() == null).count();
+        logger.info("Companies without image: {}", noImageCount);
+        Assert.assertTrue(noImageCount > 0);
     }
 
     @Test

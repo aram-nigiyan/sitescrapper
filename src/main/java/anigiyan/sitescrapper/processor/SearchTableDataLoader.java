@@ -19,8 +19,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Developer: nigiyan
@@ -160,7 +158,7 @@ public class SearchTableDataLoader {
 
                     logger.info("Processing page {}", i);
 
-                    result.addAll(extractCompanies());
+                    result.addAll(extractCompaniesOnPage());
 
                     changePage(i + 1);
 
@@ -172,35 +170,45 @@ public class SearchTableDataLoader {
             }
         }
 
+        private List<CompanyData> extractCompaniesOnPage() {
+
+            List<CompanyData> companies = loadRowData();
+
+            downloadImages(companies);
+
+            return companies;
+        }
+
+        private List<CompanyData> loadRowData() {
+            List<WebElement> rows = driver.findElements(By.cssSelector(".content .cursorPointer"));
+            List<CompanyData> companies = new ArrayList<>();
+
+            for (WebElement row : rows) {
+
+                String companyName = row.findElement(By.tagName("span")).getText();
+                String imageSrc = row.findElement(By.tagName("img")).getAttribute("src");
+
+                logger.trace("Parsed company:\nname={}\ninmagesrc={}", companyName, imageSrc);
+
+                companies.add(new CompanyData(companyName, imageSrc));
+            }
+
+            return companies;
+        }
+
+        private void downloadImages(Collection<CompanyData> companies) {
+            long start = System.currentTimeMillis();
+            companies.stream().filter(c -> !c.getImageUrl().contains("nologo_Small")).parallel().forEach(company -> {
+                company.setImage(resourceLoader.load(company.getImageUrl()));
+            });
+            logger.debug("Loading {} images took {}ms", companies.size(), System.currentTimeMillis() - start);
+        }
+
         private void changePage(int page) {
             WebElement pageInputElement = driver.findElement(By.cssSelector(".x-toolbar-left-row input"));
             pageInputElement.clear();
             pageInputElement.sendKeys(String.valueOf(page));
             pageInputElement.sendKeys(Keys.RETURN);
-        }
-
-        private List<CompanyData> extractCompanies() {
-
-            Stream<WebElement> rows = driver.findElements(By.cssSelector(".content .cursorPointer")).stream();
-            List<CompanyData> companies = rows.map(it -> {
-
-                        String companyName = it.findElement(By.tagName("span")).getText();
-                        String imageSrc = it.findElement(By.tagName("img")).getAttribute("src");
-                        logger.trace("Parsed company:\nname={}\ninmagesrc={}", companyName, imageSrc);
-
-                return new CompanyData(companyName, imageSrc);
-                    }
-
-            ).collect(Collectors.toList());
-
-            long start = System.currentTimeMillis();
-
-            companies.stream().parallel().forEach(company -> {
-                company.setImage(resourceLoader.load(company.getImageUrl()));
-            });
-            logger.debug("Loading {} images took {}ms", companies.size(), System.currentTimeMillis() - start);
-
-            return companies;
         }
     }
 }
