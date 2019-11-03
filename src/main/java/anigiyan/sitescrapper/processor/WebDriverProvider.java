@@ -15,7 +15,7 @@ import java.util.HashMap;
 @Component
 public class WebDriverProvider {
 
-    WebDriver newDriver() {
+    public WebDriver newDriver() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
 

@@ -16,6 +16,7 @@ public class CompanyData {
     private String imageUrl;
     private byte[] image;
     private Long remoteId;
+    private String address;
 
     public CompanyData(String name, String imageUrl) {
         this.name = name;
@@ -56,5 +57,13 @@ public class CompanyData {
 
     public void setRemoteId(Long remoteId) {
         this.remoteId = remoteId;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }
