@@ -1,4 +1,4 @@
-package anigiyan.sitescrapper.app;
+package anigiyan.sitescrapper;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

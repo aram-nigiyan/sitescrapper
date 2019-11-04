@@ -1,10 +1,5 @@
 package anigiyan.sitescrapper;
 
-import anigiyan.sitescrapper.app.Configs;
-import anigiyan.sitescrapper.app.ExecutorsPool;
-import anigiyan.sitescrapper.app.ResourceLoader;
-import anigiyan.sitescrapper.app.Runner;
-import anigiyan.sitescrapper.app.webdriver.ChromeWebDriverProvider;
 import anigiyan.sitescrapper.processor.AddressesLoader;
 import anigiyan.sitescrapper.processor.CompanyData;
 import anigiyan.sitescrapper.processor.RemoteIdLoader;
@@ -28,7 +23,7 @@ import java.util.stream.Collectors;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {SearchTableDataLoader.class, Configs.class, Runner.class, ResourceLoader.class, RemoteIdLoader.class, ExecutorsPool.class, AddressesLoader.class, ChromeWebDriverProvider.class})
+@SpringBootTest
 public class AppTests {
 
     private static final Logger logger = LoggerFactory.getLogger(AppTests.class);

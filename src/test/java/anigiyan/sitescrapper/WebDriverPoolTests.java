@@ -1,9 +1,5 @@
 package anigiyan.sitescrapper;
 
-import anigiyan.sitescrapper.app.Configs;
-import anigiyan.sitescrapper.app.ResourceLoader;
-import anigiyan.sitescrapper.app.Runner;
-import anigiyan.sitescrapper.app.webdriver.ChromeWebDriverProvider;
 import anigiyan.sitescrapper.app.webdriver.WebDriverPool;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,7 +19,7 @@ import java.util.stream.IntStream;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {Configs.class, Runner.class, ResourceLoader.class, ChromeWebDriverProvider.class})
+@SpringBootTest
 public class WebDriverPoolTests {
 
     private static final Logger logger = LoggerFactory.getLogger(WebDriverPoolTests.class);
