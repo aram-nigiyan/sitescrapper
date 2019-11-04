@@ -65,6 +65,10 @@ public class CompanyData {
         this.remoteId = remoteId;
     }
 
+    public boolean hasRemoteId() {
+        return remoteId != null && remoteId > 0;
+    }
+
     public String getAddress() {
         return address;
     }

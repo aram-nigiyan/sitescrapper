@@ -77,21 +77,21 @@ public class Runner implements ApplicationRunner {
 
             @Override
             public void destroyObject(PooledObject<WebDriver> pooledObject) throws Exception {
-                logger.info("Destroying web driver object");
+                logger.trace("Destroying web driver object");
                 pooledObject.getObject().quit();
             }
 
             @Override
             public void passivateObject(PooledObject<WebDriver> pooledObject) throws Exception {
                 super.passivateObject(pooledObject);
-                logger.debug("Driver returned to pool. Resetting location");
+                logger.trace("Driver returned to pool. Resetting location");
                 pooledObject.getObject().get(webDriverProvider.emptyLocation());
             }
 
             @Override
             public void activateObject(PooledObject<WebDriver> p) throws Exception {
                 super.activateObject(p);
-                logger.debug("Driver requested from pool");
+                logger.trace("Driver requested from pool");
             }
         }, config);
     }
