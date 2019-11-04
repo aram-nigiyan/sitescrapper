@@ -7,3 +7,8 @@ execution stats with 16 threads:
 2019-11-04 22:52:42.682  INFO 12894 --- [           main] anigiyan.sitescrapper.AppTests           : ---STATS--- For the following companies address does not exist:
 [17826, 10501, 11360, 12602, 13714, 13331, 17244, 17363, 15288, 17864, 17364, 17483, 17464, 17565, 17564]
 
+
+
+packaging:
+
+mvn -Dmaven.test.skip=true package spring-boot:repackage
