@@ -43,7 +43,8 @@ public class RepositoryTests {
     public void testRepository() {
         Logo logo = new Logo(new byte[]{1, 2, 3});
 
-        Company o = new Company("some company", "addr", logo);
+        Company o = new Company("some company", null, logo);
+        o.setRemoteId(1L);
 
         Company save = companyRepository.save(o);
 

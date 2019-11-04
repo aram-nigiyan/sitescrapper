@@ -26,6 +26,13 @@ public class Company {
         this.logo = logo;
     }
 
+    public Company(String name, String address, Logo logo, Long remoteId) {
+        this.name = name;
+        this.address = address;
+        this.logo = logo;
+        this.remoteId = remoteId;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getId() {
@@ -45,7 +52,7 @@ public class Company {
         this.name = name;
     }
 
-    public @NotEmpty @Length(max = 2000) String getAddress() {
+    public @Length(max = 2000) String getAddress() {
         return address;
     }
 
@@ -72,7 +79,7 @@ public class Company {
         this.logo = logo;
     }
 
-    public Long getRemoteId() {
+    public @NotNull Long getRemoteId() {
         return remoteId;
     }
 

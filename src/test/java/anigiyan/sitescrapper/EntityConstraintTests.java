@@ -28,7 +28,7 @@ public class EntityConstraintTests {
 
     @Test
     public void whenEntityInvalid_thenThrowsException() {
-        Company o = new Company("", "", null);
+        Company o = new Company("", null, null);
 
         try {
             repository.saveAndFlush(o);

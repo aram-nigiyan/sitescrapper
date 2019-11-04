@@ -4,6 +4,7 @@ import anigiyan.sitescrapper.processor.AddressesLoader;
 import anigiyan.sitescrapper.processor.CompanyData;
 import anigiyan.sitescrapper.processor.RemoteIdLoader;
 import anigiyan.sitescrapper.processor.SearchTableDataLoader;
+import anigiyan.sitescrapper.repository.CompanyRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +38,9 @@ public class AppTests {
     @Autowired
     private AddressesLoader addressesLoader;
 
+    @Autowired
+    private CompanyRepository companyRepository;
+
     @Test
     public void entireTest() {
         long start = System.currentTimeMillis();
@@ -55,6 +59,11 @@ public class AppTests {
         addressesLoader.load(companiesWithIDs);
         Assert.assertTrue(companiesWithIDs.stream().anyMatch(CompanyData::hasAddress));
         ////// addresses by IDs load completed ///////
+
+        //PERSISTENCE check
+//        companiesWithIDs.parallelStream().forEach(it -> companyRepository.save(new Company(it.getName(), it.getAddress(), new Logo(it.getImage()), it.getRemoteId())));
+//        Assert.assertEquals(companyRepository.count(), companiesWithIDs.size());
+        ////// Saved to DB //////
 
         logger.info("---STATS--- Processing took {}secs", (System.currentTimeMillis() - start) / 1000);
 
