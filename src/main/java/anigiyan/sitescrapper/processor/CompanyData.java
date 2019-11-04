@@ -5,6 +5,8 @@ package anigiyan.sitescrapper.processor;
  * Date: 01/11/2019
  */
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Intermediate class to collect company data before persistence phase
  *
@@ -21,6 +23,10 @@ public class CompanyData {
     public CompanyData(String name, String imageUrl) {
         this.name = name;
         this.imageUrl = imageUrl;
+    }
+
+    public CompanyData(Long remoteId) {
+        this.remoteId = remoteId;
     }
 
     public String getName() {
@@ -65,5 +71,9 @@ public class CompanyData {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public boolean hasAddress() {
+        return !StringUtils.isEmpty(address);
     }
 }

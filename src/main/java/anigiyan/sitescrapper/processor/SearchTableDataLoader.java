@@ -3,7 +3,7 @@ package anigiyan.sitescrapper.processor;
 import anigiyan.sitescrapper.app.Configs;
 import anigiyan.sitescrapper.app.ExecutorsPool;
 import anigiyan.sitescrapper.app.ResourceLoader;
-import anigiyan.sitescrapper.app.WebDriverPool;
+import anigiyan.sitescrapper.app.webdriver.WebDriverPool;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,7 +62,7 @@ public class SearchTableDataLoader {
         int totalPageNumber = maxPages == -1 ? resolveTotalPageNumber() : maxPages;
         collectInParallel(totalPageNumber);
 
-        logger.info("Data extraction completed in {}ms", System.currentTimeMillis() - start);
+        logger.info("Data extraction completed for companies {}, took {}ms", companies.size(), System.currentTimeMillis() - start);
     }
 
     private void collectInParallel(int totalPageNumber) {
@@ -83,7 +84,6 @@ public class SearchTableDataLoader {
                 logger.error("", e);
             }
         }
-        logger.info("Number of companies collected: {}", companies.size());
     }
 
 
@@ -94,7 +94,7 @@ public class SearchTableDataLoader {
             waitListLoad(driver);
 
             int totalPages = extractTotalPages(driver);
-            logger.info("Total number of pages: {}", totalPages);
+            logger.debug("Total number of pages: {}", totalPages);
 
             return totalPages;
 
@@ -111,7 +111,9 @@ public class SearchTableDataLoader {
      * @param driver
      */
     private static void waitListLoad(WebDriver driver) {
-        new WebDriverWait(driver, 20).until(
+        WebDriverWait webDriverWait = new WebDriverWait(driver, 20);
+        webDriverWait.pollingEvery(Duration.ofMillis(50));
+        webDriverWait.until(
                 ExpectedConditions.and(
                         ExpectedConditions.numberOfElementsToBe(By.className("mwf-Spinner-Glass"), 0),
                         ExpectedConditions.presenceOfElementLocated(By.className("mwf-grid-footer"))
@@ -147,7 +149,7 @@ public class SearchTableDataLoader {
 
         @Override
         public List<CompanyData> call() {
-            logger.info("Processing pages: [{}, {}]", startPage, endPage);
+            logger.debug("Processing pages: [{}, {}]", startPage, endPage);
 
             try {
                 long start = System.currentTimeMillis();
@@ -160,7 +162,7 @@ public class SearchTableDataLoader {
 
                 for (int i = startPage; i <= endPage; i++) {
 
-                    logger.info("Processing page {}", i);
+                    logger.debug("Processing page {}", i);
 
                     result.addAll(extractCompaniesOnPage());
 

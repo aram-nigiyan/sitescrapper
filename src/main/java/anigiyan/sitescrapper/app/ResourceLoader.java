@@ -29,7 +29,7 @@ public class ResourceLoader {
     }
 
     public byte[] load(String uri) {
-        logger.info("Loading resource for uri: {}", StringUtils.abbreviate(uri, 60));
+        logger.debug("Loading resource for uri: {}", StringUtils.abbreviate(uri, 60));
         HttpUriRequest request = new HttpGet(uri);
         ByteArrayOutputStream outstream = new ByteArrayOutputStream();
 

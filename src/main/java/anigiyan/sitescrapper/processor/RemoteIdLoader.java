@@ -4,6 +4,7 @@ import anigiyan.sitescrapper.app.Configs;
 import anigiyan.sitescrapper.app.ExecutorsPool;
 import anigiyan.sitescrapper.app.ResourceLoader;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,14 +59,15 @@ public class RemoteIdLoader {
     }
 
     public Long load(String name) {
+        String response = "";
         Long id = null;
         try {
-            String response = new String(resourceLoader.load(configs.getCmpIdRequestUrl() + URLEncoder.encode(name, "UTF-8")));
+            response = new String(resourceLoader.load(configs.getCmpIdRequestUrl() + URLEncoder.encode(name, "UTF-8")));
 
             id = Long.parseLong(JsonPath.read(response, "$.list[0].id"));
 
-        } catch (UnsupportedEncodingException e) {
-            logger.error("", e);
+        } catch (UnsupportedEncodingException | PathNotFoundException e) {
+            logger.error("Failed getting ID by name: {} by response: {}", name, response);
         }
         return id;
     }

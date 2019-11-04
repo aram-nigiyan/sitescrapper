@@ -2,7 +2,11 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <logger name="anigiyan.sitescrapper" level="DEBUG" additivity="false">
+    <logger name="anigiyan.sitescrapper" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <logger name="anigiyan.sitescrapper.processor.AddressesLoader" level="TRACE" additivity="false">
         <appender-ref ref="CONSOLE"/>
     </logger>
 

@@ -2,10 +2,11 @@ package anigiyan.sitescrapper.processor;
 
 import anigiyan.sitescrapper.app.Configs;
 import anigiyan.sitescrapper.app.ExecutorsPool;
-import anigiyan.sitescrapper.app.WebDriverPool;
+import anigiyan.sitescrapper.app.webdriver.WebDriverPool;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -13,7 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -35,45 +40,79 @@ public class AddressesLoader {
     @Autowired
     private WebDriverPool webDriverPool;
 
-    public Future<String> load(Long id) {
+    public void load(Collection<CompanyData> companies) {
+        logger.info("Starting loading addresses for {} companies", companies.size());
 
-        logger.info("Starting details load for company with id", id);
+        Collection<Future<CompanyData>> futures = new ArrayList<>(companies.size());
+        long start = System.currentTimeMillis();
 
-        return executorsPool.getExecutorService().submit(new Worker(id, webDriverPool.borrowObject()));
+        for (CompanyData c : companies) {
+            Future<CompanyData> future = executorsPool.getExecutorService().submit(new Worker(c));
+            futures.add(future);
+        }
+
+        for (Future<CompanyData> future : futures) {
+            try {
+                future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error("", e);
+            }
+        }
+        logger.info("Addresses load complete in {}ms", System.currentTimeMillis() - start);
     }
 
-    private class Worker implements Callable<String> {
+    private class Worker implements Callable<CompanyData> {
 
-        private WebDriver webDriver;
-        private Long companyId;
+        private CompanyData companyData;
 
-        public Worker(Long companyId, WebDriver webDriver) {
-            this.webDriver = webDriver;
-            this.companyId = companyId;
+        public Worker(CompanyData companyData) {
+            this.companyData = companyData;
         }
 
         @Override
-        public String call() throws Exception {
-            webDriver.get(configs.getCmpDetailsByIdUrl() + companyId);
-            waitDetailsLoad();
-            webDriver.findElement(By.cssSelector("div.mwf-AccordionPanel-Main > div:nth-child(1) > div.mwf-AccordionItem-ListTitle")).click();
-            String text = webDriver.findElement(By.cssSelector(".mwf-AccordionItem-Content tr:nth-of-type(6) td:nth-of-type(2) div")).getText();
+        public CompanyData call() {
+            logger.debug("Loading address for company with id {}", companyData.getRemoteId());
+            long start = System.currentTimeMillis();
 
-            webDriverPool.returnObject(webDriver);
+            WebDriver webDriver = webDriverPool.borrowObject();
 
-            return StringUtils.trim(text);
+            try {
+                String url = configs.getCmpDetailsByIdUrl() + companyData.getRemoteId();
+                logger.trace("Loading page {}", url);
+
+                webDriver.get(url);
+                logger.trace("Waiting page to load fully, company id: {}", companyData.getRemoteId());
+
+                waitDetailsLoad(webDriver);
+
+                logger.trace("Making details visible, company id: {}", companyData.getRemoteId());
+
+                webDriver.findElement(By.cssSelector("div.mwf-AccordionPanel-Main > div:nth-child(1) > div.mwf-AccordionItem-ListTitle.mwf-Accordion-collapsed")).click();
+
+                logger.trace("Details become visible, getting address content, company id: {}", companyData.getRemoteId());
+                String text = webDriver.findElement(By.cssSelector(".mwf-AccordionItem-Content tr:nth-of-type(6) td:nth-of-type(2) div")).getText();
+
+                companyData.setAddress(StringUtils.trim(text));
+
+                logger.debug("Address for company with id {} resolved to {} loaded in {}ms", companyData.getRemoteId(), companyData.getAddress(), System.currentTimeMillis() - start);
+            } catch (WebDriverException e) {
+                logger.error("", e);
+            } finally {
+                webDriverPool.returnObject(webDriver);
+            }
+
+            return companyData;
         }
 
-        private void waitDetailsLoad() {
-
-            new WebDriverWait(webDriver, 20).until(
+        private void waitDetailsLoad(WebDriver webDriver) {
+            WebDriverWait webDriverWait = new WebDriverWait(webDriver, 10);
+            webDriverWait.pollingEvery(Duration.ofMillis(200));
+            webDriverWait.until(
                     ExpectedConditions.and(
-                            ExpectedConditions.numberOfElementsToBe(By.className("mwf-Spinner-Glass"), 0),
-                            ExpectedConditions.visibilityOfElementLocated(By.className("mwf-AccordionItem-ListTitle"))
+                            ExpectedConditions.numberOfElementsToBe(By.className("mwf-AccordionPanel-Main"), 1),
+                            ExpectedConditions.numberOfElementsToBe(By.className("mwf-Spinner-Glass"), 0)
                     )
             );
         }
     }
-
-
 }

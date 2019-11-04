@@ -1,36 +1,45 @@
-package anigiyan.sitescrapper.app;
+package anigiyan.sitescrapper.app.webdriver;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Developer: nigiyan
- * Date: 02/11/2019
+ * Date: 04/11/2019
  */
 
-/**
- * Abstraction to provide chrome/firefox drivers based on config. todo: complete if necessary
- */
 @Component
-public class WebDriverProvider {
+@ConditionalOnProperty(
+        value = "sitescrapper.webdriver.name",
+        havingValue = "chrome",
+        matchIfMissing = true)
+public class ChromeWebDriverProvider implements WebDriverProvider {
 
-    WebDriver newDriver() {
+    @Override
+    public WebDriver newDriver() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
 
         // +10% performance if no images rendered thanks to skip requests for "img src"
-        HashMap<String, Object> images = new HashMap<String, Object>();
+        Map<String, Object> images = new HashMap<String, Object>(1);
         images.put("images", 2);
-        HashMap<String, Object> prefs = new HashMap<String, Object>();
+        Map<String, Object> prefs = new HashMap<String, Object>(1);
         prefs.put("profile.default_content_setting_values", images);
 
         options.setExperimentalOption("prefs", prefs);
 
         return new ChromeDriver(options);
+    }
+
+    @Override
+    public String emptyLocation() {
+        return "about:blank";
     }
 //
 //    WebDriver newDriver() {
