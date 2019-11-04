@@ -1,5 +1,7 @@
 package anigiyan.sitescrapper;
 
+import anigiyan.sitescrapper.model.Company;
+import anigiyan.sitescrapper.model.Logo;
 import anigiyan.sitescrapper.processor.AddressesLoader;
 import anigiyan.sitescrapper.processor.CompanyData;
 import anigiyan.sitescrapper.processor.RemoteIdLoader;
@@ -61,8 +63,8 @@ public class AppTests {
         ////// addresses by IDs load completed ///////
 
         //PERSISTENCE check
-//        companiesWithIDs.parallelStream().forEach(it -> companyRepository.save(new Company(it.getName(), it.getAddress(), new Logo(it.getImage()), it.getRemoteId())));
-//        Assert.assertEquals(companyRepository.count(), companiesWithIDs.size());
+        companiesWithIDs.parallelStream().forEach(it -> companyRepository.save(new Company(it.getName(), it.getAddress(), new Logo(it.getImage()), it.getRemoteId())));
+        Assert.assertEquals(companyRepository.count(), companiesWithIDs.size());
         ////// Saved to DB //////
 
         logger.info("---STATS--- Processing took {}secs", (System.currentTimeMillis() - start) / 1000);

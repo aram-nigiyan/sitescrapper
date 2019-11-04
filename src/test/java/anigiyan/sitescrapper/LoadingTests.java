@@ -31,7 +31,7 @@ public class LoadingTests {
 
     @Test
     public void idsLoadingByNameTest() {
-        List<CompanyData> listOfCompaniesWithNames = Stream.of("İSKENDERUN DEMİR VE ÇELİK A.Ş.", "MEM TEKSTİL SANAYİ VE TİCARET A.Ş.", "HACI ÖMER SABANCI HOLDİNG A.Ş.", "HEKTAŞ TİCARET T.A.Ş.", "X TRADE BROKERS MENKUL DEĞERLER A.Ş.", "ANAGOLD MADENCİLİK SANAYİ VE TİCARET A.Ş.")
+        List<CompanyData> listOfCompaniesWithNames = Stream.of("TEB FİNANSMAN A.Ş.", "İSKENDERUN DEMİR VE ÇELİK A.Ş.", "MEM TEKSTİL SANAYİ VE TİCARET A.Ş.", "HACI ÖMER SABANCI HOLDİNG A.Ş.", "HEKTAŞ TİCARET T.A.Ş.", "X TRADE BROKERS MENKUL DEĞERLER A.Ş.", "ANAGOLD MADENCİLİK SANAYİ VE TİCARET A.Ş.")
                 .map(s -> new CompanyData(s, null)).collect(Collectors.toList());
 
         remoteIdLoader.load(listOfCompaniesWithNames);
