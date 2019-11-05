@@ -16,6 +16,7 @@ Abstraction implemented to be chrome/firefox/phantomjs/etc web drivers ready.
 Pools utilized: executors, http connection.
 Parallel streams used to load web resources.
 Configuration file eliminating any hardcoded stuff.
+H2 used as database.
 
 
 Main branches:
