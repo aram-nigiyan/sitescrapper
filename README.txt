@@ -1,14 +1,35 @@
-execution stats with 16 threads:
+SiteScrapper project
 
-2019-11-04 22:52:42.676  INFO 12894 --- [           main] anigiyan.sitescrapper.AppTests           : ---STATS--- Processing took 418secs
-2019-11-04 22:52:42.678  INFO 12894 --- [           main] anigiyan.sitescrapper.AppTests           : ---STATS--- Total companies fetched: 2490, Companies with logo: 1726
-2019-11-04 22:52:42.680  WARN 12894 --- [           main] anigiyan.sitescrapper.AppTests           : ---STATS WARN--- Failed to resolve IDs for companies:
-[TEB FİNANSMAN A.Ş., SÜMER FAKTORİNG A.Ş., BAŞKENT DOĞALGAZ DAĞITIM GAYRİMENKUL YATIRIM ORTAKLIĞI A.Ş., ÖZDİLEK ALIŞVERİŞ MERKEZLERİ VE TEKSTİL SANAYİ ANONİM ŞİRKETİ, MAQUET CARDİOPULMONARY MEDİKAL TEKNİK SANAYİ TİCARET LİMİTED ŞİRKETİ, ARZ GAYRİMENKUL VE GİRİŞİM SERMAYESİ PORTFÖY YÖNETİMİ A.Ş., YEMEK SEPETİ ELEKTRONİK İLETİŞİM PERAKENDE GIDA LOJİSTİK A.Ş., M S T İŞ VE TARIM MAKİNALARI SANAYİ VE TİCARET A.Ş.]
-2019-11-04 22:52:42.682  INFO 12894 --- [           main] anigiyan.sitescrapper.AppTests           : ---STATS--- For the following companies address does not exist:
-[17826, 10501, 11360, 12602, 13714, 13331, 17244, 17363, 15288, 17864, 17364, 17483, 17464, 17565, 17564]
+Target:
+Grabs site content.
+
+Algorithm:
+1. Collect company names and logos from search page result table.
+2. Load companies ID by name for those who has logo (hereafter just companies).
+3. Load companies addresses by ID.
+4. Save companies to database.
+
+Implementation details:
+Test coverage of every functionality.
+Selenium web driver pool is implemented for that heavy resource reusage.
+Abstraction implemented to be chrome/firefox/phantomjs/etc web drivers ready.
+Pools utilized: executors, http connection.
+Parallel streams used to load web resources.
+Configuration file eliminating any hardcoded stuff.
 
 
+Main branches:
+master - final stable version
+release - same as master plus generated DB & log files
+
+testing:
+mvn test
 
 packaging:
-
 mvn -Dmaven.test.skip=true package spring-boot:repackage
+
+running:
+java -jar sitescrapper-0.0.1-SNAPSHOT.jar
+
+stats:
+DB file has been generated on: 4 physical cpu i7 processor; 4G network over wifi connection. Processing took 413 secunds.
