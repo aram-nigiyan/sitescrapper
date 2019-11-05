@@ -2,6 +2,7 @@ package anigiyan.sitescrapper;
 
 import anigiyan.sitescrapper.processor.*;
 import anigiyan.sitescrapper.repository.CompanyRepository;
+import anigiyan.sitescrapper.service.CompaniesExportToCSVService;
 import anigiyan.sitescrapper.service.CompanyPersisterService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,6 +48,9 @@ public class AppTests {
     @Autowired
     private CompanyPersisterService companyPersisterService;
 
+    @Autowired
+    private CompaniesExportToCSVService companiesExportToCSVService;
+
     @Test
     public void entireTest() {
         long start = System.currentTimeMillis();
@@ -70,6 +74,9 @@ public class AppTests {
         companyPersisterService.persist(companiesWithIDs);
         Assert.assertEquals(companyRepository.count(), companiesWithIDs.size());
         ////// Saved to DB //////
+
+        Assert.assertTrue(companiesExportToCSVService.exportToCSV(companiesWithIDs));
+        ////// Saved to CSV //////
 
         logger.info("---STATS--- Processing took {}secs", (System.currentTimeMillis() - start) / 1000);
 

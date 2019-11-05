@@ -28,6 +28,9 @@ public class Configs {
     @Value("${sitescrapper.worker.count}")
     private int workerCount;
 
+    @Value("${sitescrapper.csv.file.name}")
+    private String csvFileName;
+
     public String getWebDriverUrl() {
         return webdriverUrl;
     }
@@ -66,6 +69,14 @@ public class Configs {
 
     public void setWorkerCount(int workerCount) {
         this.workerCount = workerCount;
+    }
+
+    public String getCsvFileName() {
+        return csvFileName;
+    }
+
+    public void setCsvFileName(String csvFileName) {
+        this.csvFileName = csvFileName;
     }
 
     @PostConstruct
