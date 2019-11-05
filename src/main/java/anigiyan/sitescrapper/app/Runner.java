@@ -1,6 +1,7 @@
 package anigiyan.sitescrapper.app;
 
 import anigiyan.sitescrapper.processor.*;
+import anigiyan.sitescrapper.service.CompaniesExportToCSVService;
 import anigiyan.sitescrapper.service.CompanyPersisterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,9 @@ public class Runner implements CommandLineRunner {
     @Autowired
     private ApplicationContext appContext;
 
+    @Autowired
+    private CompaniesExportToCSVService companiesExportToCSVService;
+
 
     @Override
     public void run(String... args) throws Exception {
@@ -54,6 +58,8 @@ public class Runner implements CommandLineRunner {
         addressesLoader.load(companiesWithLogo);
 
         companyPersisterService.persist(companiesWithLogo);
+
+        companiesExportToCSVService.exportToCSV(companiesWithLogo);
 
         Stats.printSearchPageDataLoadStats(companies);
         Stats.printIdsFailedToResolveByName(companiesWithLogo);

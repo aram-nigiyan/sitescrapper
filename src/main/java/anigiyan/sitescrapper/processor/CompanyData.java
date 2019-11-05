@@ -25,6 +25,12 @@ public class CompanyData {
         this.imageUrl = imageUrl;
     }
 
+    public CompanyData(String name, byte[] image, String address) {
+        this.name = name;
+        this.image = image;
+        this.address = address;
+    }
+
     public CompanyData(Long remoteId) {
         this.remoteId = remoteId;
     }
