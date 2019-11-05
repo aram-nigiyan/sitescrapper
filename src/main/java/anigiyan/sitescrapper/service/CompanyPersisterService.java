@@ -1,11 +1,14 @@
 package anigiyan.sitescrapper.service;
 
 import anigiyan.sitescrapper.model.Company;
+import anigiyan.sitescrapper.model.Logo;
+import anigiyan.sitescrapper.processor.CompanyData;
 import anigiyan.sitescrapper.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Collection;
 
 /**
  * Developer: nigiyan
@@ -23,7 +26,7 @@ public class CompanyPersisterService {
     }
 
     @Transactional
-    void persist(Company company) {
-        companyRepository.saveAndFlush(company);
+    public void persist(Collection<CompanyData> companyData) {
+        companyData.parallelStream().forEach(it -> companyRepository.save(new Company(it.getName(), it.getAddress(), new Logo(it.getImage()), it.getRemoteId())));
     }
 }

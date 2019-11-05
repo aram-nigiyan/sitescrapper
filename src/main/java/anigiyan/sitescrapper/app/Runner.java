@@ -1,23 +1,17 @@
 package anigiyan.sitescrapper.app;
 
-import anigiyan.sitescrapper.app.webdriver.WebDriverPool;
-import anigiyan.sitescrapper.app.webdriver.WebDriverProvider;
-import org.apache.commons.pool2.BasePooledObjectFactory;
-import org.apache.commons.pool2.PooledObject;
-import org.apache.commons.pool2.impl.DefaultPooledObject;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.openqa.selenium.WebDriver;
+import anigiyan.sitescrapper.processor.*;
+import anigiyan.sitescrapper.service.CompanyPersisterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Developer: nigiyan
@@ -25,74 +19,48 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-@Configuration
-public class Runner implements ApplicationRunner {
+public class Runner implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     @Autowired
-    private Configs configs;
+    private SearchTableDataLoader searchTableDataLoader;
 
     @Autowired
-    private WebDriverProvider webDriverProvider;
+    private RemoteIdLoader remoteIdLoader;
+
+    @Autowired
+    private CompanyPersisterService companyPersisterService;
+
+    @Autowired
+    private AddressesLoader addressesLoader;
+
+    @Autowired
+    private ApplicationContext appContext;
+
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(String... args) throws Exception {
         logger.info("Starting application...");
 
-    }
+        long start = System.currentTimeMillis();
 
-    @Bean
-    public ResourceLoader initHttpClientPool() {
-        PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
-        cm.setMaxTotal(200);
-        cm.setDefaultMaxPerRoute(200);
+        List<CompanyData> companies = searchTableDataLoader.extractAll();
 
-        CloseableHttpClient httpClient = HttpClients.custom()
-                .setConnectionManager(cm)
-                .build();
+        List<CompanyData> companiesWithLogo = companies
+                .stream().filter(CompanyData::hasImage).collect(Collectors.toList());
 
-        return new ResourceLoader(httpClient);
-    }
+        remoteIdLoader.load(companiesWithLogo);
 
-    @Bean
-    public WebDriverPool initWebDriverPool() {
-        GenericObjectPoolConfig<WebDriver> config = new GenericObjectPoolConfig<>();
-        config.setMaxTotal(configs.getWorkerCount());
-        config.setMaxIdle(configs.getWorkerCount());
-        config.setBlockWhenExhausted(true);
+        addressesLoader.load(companiesWithLogo);
 
-        return new WebDriverPool(new BasePooledObjectFactory<WebDriver>() {
+        companyPersisterService.persist(companiesWithLogo);
 
-            final Logger logger = LoggerFactory.getLogger(WebDriverPool.class);
+        Stats.printSearchPageDataLoadStats(companies);
+        Stats.printIdsFailedToResolveByName(companiesWithLogo);
+        Stats.printAddressesLoadStats(companiesWithLogo);
 
-            @Override
-            public WebDriver create() {
-                return webDriverProvider.newDriver();
-            }
+        logger.info("---DONE--- Processing took {}secs", (System.currentTimeMillis() - start) / 1000);
 
-            @Override
-            public PooledObject<WebDriver> wrap(WebDriver obj) {
-                return new DefaultPooledObject<>(obj);
-            }
-
-            @Override
-            public void destroyObject(PooledObject<WebDriver> pooledObject) throws Exception {
-                logger.trace("Destroying web driver object");
-                pooledObject.getObject().quit();
-            }
-
-            @Override
-            public void passivateObject(PooledObject<WebDriver> pooledObject) throws Exception {
-                super.passivateObject(pooledObject);
-                logger.trace("Driver returned to pool. Resetting location");
-                pooledObject.getObject().get(webDriverProvider.emptyLocation());
-            }
-
-            @Override
-            public void activateObject(PooledObject<WebDriver> p) throws Exception {
-                super.activateObject(p);
-                logger.trace("Driver requested from pool");
-            }
-        }, config);
+        SpringApplication.exit(appContext, () -> 0);
     }
 }

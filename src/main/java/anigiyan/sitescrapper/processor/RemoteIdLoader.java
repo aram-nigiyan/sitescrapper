@@ -1,8 +1,8 @@
 package anigiyan.sitescrapper.processor;
 
-import anigiyan.sitescrapper.app.Configs;
 import anigiyan.sitescrapper.app.ExecutorsPool;
 import anigiyan.sitescrapper.app.ResourceLoader;
+import anigiyan.sitescrapper.app.config.Configs;
 import anigiyan.sitescrapper.processor.webapi.CompanyDto;
 import anigiyan.sitescrapper.processor.webapi.CompanyListReader;
 import com.jayway.jsonpath.JsonPath;

@@ -45,8 +45,7 @@ public class WebDriverPool extends GenericObjectPool<WebDriver> {
 
     @PreDestroy
     void destroy() {
-        logger.trace("Closing the web drivers pool");
-
+        logger.info("Closing the web drivers pool");
         close();
     }
 }

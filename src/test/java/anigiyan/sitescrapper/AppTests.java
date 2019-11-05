@@ -1,22 +1,19 @@
 package anigiyan.sitescrapper;
 
-import anigiyan.sitescrapper.model.Company;
-import anigiyan.sitescrapper.model.Logo;
-import anigiyan.sitescrapper.processor.AddressesLoader;
-import anigiyan.sitescrapper.processor.CompanyData;
-import anigiyan.sitescrapper.processor.RemoteIdLoader;
-import anigiyan.sitescrapper.processor.SearchTableDataLoader;
+import anigiyan.sitescrapper.processor.*;
 import anigiyan.sitescrapper.repository.CompanyRepository;
+import anigiyan.sitescrapper.service.CompanyPersisterService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,8 +22,12 @@ import java.util.stream.Collectors;
  * Date: 01/11/2019
  */
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = SpringBootApp.class,
+        initializers = ConfigFileApplicationContextInitializer.class)
+@TestPropertySource(properties = {
+        "sitescrapper.worker.count=4"
+})
 public class AppTests {
 
     private static final Logger logger = LoggerFactory.getLogger(AppTests.class);
@@ -43,11 +44,14 @@ public class AppTests {
     @Autowired
     private CompanyRepository companyRepository;
 
+    @Autowired
+    private CompanyPersisterService companyPersisterService;
+
     @Test
     public void entireTest() {
         long start = System.currentTimeMillis();
 
-        searchTableDataLoader.extractAll();
+        searchTableDataLoader.extract(2);
         List<CompanyData> companies = searchTableDataLoader.getCompanies();
         Assert.assertTrue(companies.stream().noneMatch(it -> it.getName().isEmpty()));
         ////// names and images load completed ///////
@@ -63,37 +67,16 @@ public class AppTests {
         ////// addresses by IDs load completed ///////
 
         //PERSISTENCE check
-        companiesWithIDs.parallelStream().forEach(it -> companyRepository.save(new Company(it.getName(), it.getAddress(), new Logo(it.getImage()), it.getRemoteId())));
+        companyPersisterService.persist(companiesWithIDs);
         Assert.assertEquals(companyRepository.count(), companiesWithIDs.size());
         ////// Saved to DB //////
 
         logger.info("---STATS--- Processing took {}secs", (System.currentTimeMillis() - start) / 1000);
 
 
-        printSearchPageDataLoadStats(companies);
-        printIdsFailedToResolveByName(companiesWithImage);
-        printAddressesLoadStats(companiesWithIDs);
+        Stats.printSearchPageDataLoadStats(companies);
+        Stats.printIdsFailedToResolveByName(companiesWithImage);
+        Stats.printAddressesLoadStats(companiesWithIDs);
     }
 
-    private static void printSearchPageDataLoadStats(Collection<CompanyData> companyData) {
-        logger.info("---STATS--- Total companies fetched: {}, Companies with logo: {}", companyData.size(), companyData.stream().filter(CompanyData::hasImage).count());
-    }
-
-    private static void printIdsFailedToResolveByName(Collection<CompanyData> companyData) {
-        List<String> namesForWhichFailedToResolveId = companyData.stream().filter(it -> !it.hasRemoteId()).map(CompanyData::getName).collect(Collectors.toList());
-        if (namesForWhichFailedToResolveId.isEmpty()) {
-            logger.info("---STATS--- All companies IDs has been resolved by name.");
-        } else {
-            logger.warn("---STATS WARN--- Failed to resolve IDs for companies:\n{}", namesForWhichFailedToResolveId);
-        }
-    }
-
-    private static void printAddressesLoadStats(Collection<CompanyData> companyData) {
-        List<Long> companiesForWhichAddressDoNotExist = companyData.stream().filter(it -> !it.hasAddress()).map(CompanyData::getRemoteId).collect(Collectors.toList());
-        if (companiesForWhichAddressDoNotExist.isEmpty()) {
-            logger.info("---STATS--- For all companies addresses exists");
-        } else {
-            logger.info("---STATS--- For the following companies address does not exist:\n{}", companiesForWhichAddressDoNotExist);
-        }
-    }
 }

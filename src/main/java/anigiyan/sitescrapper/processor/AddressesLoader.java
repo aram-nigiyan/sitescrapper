@@ -1,7 +1,7 @@
 package anigiyan.sitescrapper.processor;
 
-import anigiyan.sitescrapper.app.Configs;
 import anigiyan.sitescrapper.app.ExecutorsPool;
+import anigiyan.sitescrapper.app.config.Configs;
 import anigiyan.sitescrapper.app.webdriver.WebDriverPool;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;

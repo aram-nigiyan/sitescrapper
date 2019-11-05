@@ -1,8 +1,8 @@
 package anigiyan.sitescrapper.processor;
 
-import anigiyan.sitescrapper.app.Configs;
 import anigiyan.sitescrapper.app.ExecutorsPool;
 import anigiyan.sitescrapper.app.ResourceLoader;
+import anigiyan.sitescrapper.app.config.Configs;
 import anigiyan.sitescrapper.app.webdriver.WebDriverPool;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -49,11 +49,11 @@ public class SearchTableDataLoader {
 
     private List<CompanyData> companies = Collections.synchronizedList(new ArrayList<>(64));
 
-    public void extractAll() {
-        extract(-1);
+    public List<CompanyData> extractAll() {
+        return extract(-1);
     }
 
-    public void extract(int maxPages) {
+    public List<CompanyData> extract(int maxPages) {
         logger.info("Data extraction is started");
         companies.clear();
 
@@ -63,6 +63,8 @@ public class SearchTableDataLoader {
         collectInParallel(totalPageNumber);
 
         logger.info("Data extraction completed for companies {}, took {}ms", companies.size(), System.currentTimeMillis() - start);
+
+        return companies;
     }
 
     private void collectInParallel(int totalPageNumber) {

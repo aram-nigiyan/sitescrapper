@@ -24,7 +24,7 @@ public class ResourceLoader {
 
     private CloseableHttpClient httpClient;
 
-    ResourceLoader(CloseableHttpClient httpClient) {
+    public ResourceLoader(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
