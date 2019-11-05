@@ -1,7 +1,7 @@
 SiteScrapper project
 
 Target:
-Grabs site content.
+Grab site content.
 
 Algorithm:
 1. Collect company names and logos from search page result table.
