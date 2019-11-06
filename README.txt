@@ -33,4 +33,4 @@ running:
 java -jar sitescrapper-0.0.1-SNAPSHOT.jar
 
 stats:
-Executed on 4 physical cpu i7 processor; 4G network over wifi connection. Processing took 413 secunds.
+Executed on 4 physical cpu i7 processor; 4G network over wifi connection. Processing took 413 seconds.
